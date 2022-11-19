@@ -3,10 +3,11 @@ package ru.netology.test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.netology.data.DBHelper;
-import ru.netology.data.DataHelper;
-import ru.netology.data.User;
+import ru.netology.data.*;
 import ru.netology.page.LoginPage;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,11 +61,25 @@ public class UITest {
         getVerificationPage(user);
         getVerificationPage(user);
         getVerificationPage(user);
-        assertEquals("active", DBHelper.getUserStatus(user));
+        assertEquals("blocked", DBHelper.getUserStatus(user));
     }
 
-/*    @AfterAll
+    @Test
+    void shouldReturnToken() {
+        User user = DataHelper.getValidUserFirst();
+        APIHelper.logIn(user);
+        String code = DBHelper.getCode(user);
+        String token = APIHelper.getToken(user, code);
+        List<Card> cardList = APIHelper.getCards(token);
+        for (int i = 0; i < cardList.size(); i++) {
+            cardList.get(i).setOpenedNumber(DBHelper.getCardNumber(cardList.get(i).getId()));
+        }
+        String actual = APIHelper.makeTransfer(cardList.get(0).getOpenedNumber(), cardList.get(1).getOpenedNumber(), "1000", token);
+        System.out.println(actual);
+    }
+
+    @AfterAll
     static void flushTables() {
         DBHelper.flushTables();
-    }*/
+    }
 }

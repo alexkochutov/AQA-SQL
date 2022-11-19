@@ -52,6 +52,21 @@ public class DBHelper {
         return result;
     }
 
+    public static String getCardNumber(String id) {
+        String QUERY_NUMBER = "SELECT number FROM cards WHERE id ='" + id + "'";
+        String result = null;
+        try(Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(QUERY_NUMBER);) {
+            while (rs.next()) {
+                result = rs.getString("number");
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return result;
+    }
+
     public static void flushTables() {
         String QUERY_FLUSH_TRANSACTIONS = "DELETE FROM card_transactions";
         String QUERY_FLUSH_CODES = "DELETE FROM auth_codes";

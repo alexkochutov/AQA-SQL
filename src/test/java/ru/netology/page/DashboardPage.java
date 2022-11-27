@@ -1,14 +1,16 @@
 package ru.netology.page;
 
+import lombok.NoArgsConstructor;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 
 import static com.codeborne.selenide.Selenide.$;
 
+@NoArgsConstructor
 public class DashboardPage {
-    private static SelenideElement heading = $("[data-test-id='dashboard']");
+    private static final SelenideElement heading = $("[data-test-id='dashboard']");
 
-    public static void isVisible() {
+    public void isVisible() {
         heading.shouldBe(Condition.visible);
     }
 }

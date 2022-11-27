@@ -1,20 +1,19 @@
 package ru.netology.test;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import ru.netology.data.*;
-import ru.netology.page.LoginPage;
 
-import java.util.LinkedList;
-import java.util.List;
+import ru.netology.data.User;
+import ru.netology.data.DBHelper;
+import ru.netology.data.DataHelper;
+
+import ru.netology.page.LoginPage;
+import ru.netology.page.DashboardPage;
+import ru.netology.page.VerificationPage;
 
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static ru.netology.page.DashboardPage.isVisible;
-import static ru.netology.page.LoginPage.*;
-import static ru.netology.page.VerificationPage.getDashboardPage;
-import static ru.netology.page.VerificationPage.isVerificationError;
 
 public class UITest {
     @BeforeEach
@@ -29,10 +28,13 @@ public class UITest {
     @Test
     void shouldLoginWithValidUserData() {
         User user = DataHelper.getValidUserFirst();
-        getVerificationPage(user);
+        LoginPage loginPage =  new LoginPage();
+        loginPage.getVerificationPage(user);
         String code = DBHelper.getCode(user);
-        getDashboardPage(code);
-        isVisible();
+        VerificationPage verificationPage = new VerificationPage();
+        verificationPage.getDashboardPage(code);
+        DashboardPage dashboardPage = new DashboardPage();
+        dashboardPage.isVisible();
     }
 
     //
@@ -42,40 +44,30 @@ public class UITest {
     @Test
     void shouldReturnErrorWithValidUserNameAndWrongPassword() {
         User user = DataHelper.getValidUserFirstWrongPassword();
-        getVerificationPage(user);
-        isLoginError();
+        LoginPage loginPage =  new LoginPage();
+        loginPage.getVerificationPage(user);
+        loginPage.isLoginError();
     }
 
     @Test
     void shouldReturnErrorWithValidUserDataAndWrongCode() {
         User user = DataHelper.getValidUserFirst();
-        getVerificationPage(user);
+        LoginPage loginPage =  new LoginPage();
+        loginPage.getVerificationPage(user);
         String code = DataHelper.getWrongCode();
-        getDashboardPage(code);
-        isVerificationError();
+        VerificationPage verificationPage = new VerificationPage();
+        verificationPage.getDashboardPage(code);
+        verificationPage.isVerificationError();
     }
 
     @Test
     void shouldReturnErrorValidUserDataAndExceedRetryPassword() {
         User user = DataHelper.getValidUserFirstWrongPassword();
-        getVerificationPage(user);
-        getVerificationPage(user);
-        getVerificationPage(user);
+        LoginPage loginPage =  new LoginPage();
+        loginPage.getVerificationPage(user);
+        loginPage.getVerificationPage(user);
+        loginPage.getVerificationPage(user);
         assertEquals("blocked", DBHelper.getUserStatus(user));
-    }
-
-    @Test
-    void shouldReturnToken() {
-        User user = DataHelper.getValidUserFirst();
-        APIHelper.logIn(user);
-        String code = DBHelper.getCode(user);
-        String token = APIHelper.getToken(user, code);
-        List<Card> cardList = APIHelper.getCards(token);
-        for (int i = 0; i < cardList.size(); i++) {
-            cardList.get(i).setOpenedNumber(DBHelper.getCardNumber(cardList.get(i).getId()));
-        }
-        String actual = APIHelper.makeTransfer(cardList.get(0).getOpenedNumber(), cardList.get(1).getOpenedNumber(), "1000", token);
-        System.out.println(actual);
     }
 
     @AfterAll
